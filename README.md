@@ -1,2 +1,3 @@
 # botc
-bot for cryptocoin trading
+
+It is a bot for hft cryptocoin.
