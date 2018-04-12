@@ -90,8 +90,8 @@ def update():
                 ask_qty=float(ask[1]))
             db.session.add(b)
         db.session.commit()
-    except:
-        messages.append('error getting order book')
+    except Exception as err:
+        messages.append('error getting order book: %s' % str(err))
     ######## last trades
     try:
         mkt_trades = trades('ETHBTC', 100)
@@ -106,8 +106,8 @@ def update():
                 is_best_match=trade['isBestMatch'])
             db.session.add(t)
         db.session.commit()
-    except:
-        messages.append('error getting last trades')
+    except Exception as err:
+        messages.append('error getting last trades: %s' % str(err))
     return '\n'.join(messages)
 
 if __name__ == '__main__':
