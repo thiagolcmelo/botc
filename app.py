@@ -79,10 +79,10 @@ def update():
     messages = []
     ######## order book
     try:
-        mkt_depth = depth('ETHBTC')
-        binance_id = int(mkt_depth['lastUpdateId'])
-        time = datetime.fromtimestamp(float(mkt_depth['time']) / 1000)
-        for bid, ask in zip(mkt_depth['bids'], mkt_depth['asks']):
+        book = depth('ETHBTC')
+        binance_id = (book.get('lastUpdateId') and int(book['lastUpdateId'])) or 0
+        time = datetime.fromtimestamp(float(book['time']) / 1000)
+        for bid, ask in zip(book['bids'], book['asks']):
             b = Book(binance_id=binance_id, time=time,
                 bid_price=float(bid[0]),
                 bid_qty=float(bid[1]),
@@ -96,7 +96,7 @@ def update():
     try:
         mkt_trades = trades('ETHBTC', 100)
         for trade in mkt_trades:
-            binance_id = int(trade['id'])
+            binance_id = (trade.get('id') and int(trade['id'])) or 0
             time = datetime.fromtimestamp(float(trade['time']) / 1000)
             t = Trade()
             t = Trade(binance_id=binance_id, time=time,
