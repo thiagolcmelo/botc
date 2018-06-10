@@ -28,6 +28,7 @@ db = SQLAlchemy(app)
 
 class Trade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    pair = db.Columns(db.String, nullable=True)
     binance_id = db.Column(db.Integer, unique=True, nullable=False)
     price = db.Column(db.Float, nullable=False)
     qty = db.Column(db.Float, nullable=False)
@@ -37,6 +38,7 @@ class Trade(db.Model):
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    pair = db.Columns(db.String, nullable=True)
     binance_id = db.Column(db.Integer, nullable=False)
     bid_price = db.Column(db.Float, nullable=False)
     bid_qty = db.Column(db.Float, nullable=False)
@@ -77,37 +79,40 @@ def index():
 @app.route('/update')
 def update():
     messages = []
-    ######## order book
-    try:
-        book = depth('ETHBTC')
-        binance_id = (book.get('lastUpdateId') and int(book['lastUpdateId'])) or 0
-        time = datetime.fromtimestamp(float(book['time']) / 1000)
-        for bid, ask in zip(book['bids'], book['asks']):
-            b = Book(binance_id=binance_id, time=time,
-                bid_price=float(bid[0]),
-                bid_qty=float(bid[1]),
-                ask_price=float(ask[0]),
-                ask_qty=float(ask[1]))
-            db.session.add(b)
-        db.session.commit()
-    except Exception as err:
-        messages.append('error getting order book: %s' % str(err))
-    ######## last trades
-    try:
-        mkt_trades = trades('ETHBTC', 100)
-        for trade in mkt_trades:
-            binance_id = (trade.get('id') and int(trade['id'])) or 0
-            time = datetime.fromtimestamp(float(trade['time']) / 1000)
-            t = Trade()
-            t = Trade(binance_id=binance_id, time=time,
-                price=float(trade['price']),
-                qty=float(trade['qty']),
-                is_buyer_maker=trade['isBuyerMaker'],
-                is_best_match=trade['isBestMatch'])
-            db.session.add(t)
-        db.session.commit()
-    except Exception as err:
-        messages.append('error getting last trades: %s' % str(err))
+    for pair in ['ETHBTC', 'BTCUSDT']:
+        ######## order book
+        try:
+            book = depth(pair)
+            binance_id = (book.get('lastUpdateId') and int(book['lastUpdateId'])) or 0
+            time = datetime.fromtimestamp(float(book['time']) / 1000)
+            for bid, ask in zip(book['bids'], book['asks']):
+                b = Book(binance_id=binance_id, time=time,
+                    pair=pair,
+                    bid_price=float(bid[0]),
+                    bid_qty=float(bid[1]),
+                    ask_price=float(ask[0]),
+                    ask_qty=float(ask[1]))
+                db.session.add(b)
+            db.session.commit()
+        except Exception as err:
+            messages.append('error getting order book: %s' % str(err))
+        ######## last trades
+        try:
+            mkt_trades = trades(pair, 100)
+            for trade in mkt_trades:
+                binance_id = (trade.get('id') and int(trade['id'])) or 0
+                time = datetime.fromtimestamp(float(trade['time']) / 1000)
+                t = Trade()
+                t = Trade(binance_id=binance_id, time=time,
+                    pair=pair,
+                    price=float(trade['price']),
+                    qty=float(trade['qty']),
+                    is_buyer_maker=trade['isBuyerMaker'],
+                    is_best_match=trade['isBestMatch'])
+                db.session.add(t)
+            db.session.commit()
+        except Exception as err:
+            messages.append('error getting last trades: %s' % str(err))
     return '\n'.join(messages)
 
 if __name__ == '__main__':
