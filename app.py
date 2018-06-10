@@ -28,7 +28,7 @@ db = SQLAlchemy(app)
 
 class Trade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    pair = db.Columns(db.String, nullable=True)
+    pair = db.Column(db.String, nullable=True)
     binance_id = db.Column(db.Integer, unique=True, nullable=False)
     price = db.Column(db.Float, nullable=False)
     qty = db.Column(db.Float, nullable=False)
@@ -38,7 +38,7 @@ class Trade(db.Model):
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    pair = db.Columns(db.String, nullable=True)
+    pair = db.Column(db.String, nullable=True)
     binance_id = db.Column(db.Integer, nullable=False)
     bid_price = db.Column(db.Float, nullable=False)
     bid_qty = db.Column(db.Float, nullable=False)
