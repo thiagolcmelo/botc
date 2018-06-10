@@ -24,6 +24,7 @@ con_str = 'postgresql+psycopg2://%s:%s@%s:%s/%s' \
     % (dbuser, dbpass, dbhost, dbport, dbname)
 print(con_str)
 app.config['SQLALCHEMY_DATABASE_URI'] = con_str
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class Trade(db.Model):
